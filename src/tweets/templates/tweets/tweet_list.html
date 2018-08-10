@@ -14,7 +14,28 @@ function getParameterByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 var query = getParameterByName('q')
-console.log(query)
+// console.log(query)
+var tweetList = []
+
+function parseTweets(){
+	if (tweetList==0) {
+		$('#tweet-container').text('No tweets currently found.')
+	} 
+	else { // tweets exists parse and display them
+	$.each(tweetList, function(key,value){
+		var tweetUser = key;
+		var tweetUser = value.user;
+		var tweetContent = value.content;
+		$('#tweet-container').append(
+			"<div class=\"media\"> <div class=\"media-body\">" +
+				tweetContent + "<br> via " +
+				tweetUser.username + " | " +
+				"<a href='#'>View</a>" +
+			"</div> </div> <hr>"
+			)	
+		})
+	}
+}
 
 $.ajax({
 	url: '/api/tweet/',
@@ -23,20 +44,8 @@ $.ajax({
 	},
 	method: 'GET',
 	success: function (data) {
-		// console.log(data)
-		$.each(data, function(key,value){
-			var tweetUser = key;
-			var tweetUser = value.user;
-			var tweetContent = value.content;
-			$('#tweet-container').append(
-				"<div class=\"media\"> <div class=\"media-body\">" +
-					tweetContent + "<br> via " +
-					tweetUser.username + " | " +
-					"<a href='#'>View</a>" +
-				"</div> </div> <hr>"
-				)
-
-		})
+			tweetList = data
+			parseTweets()
 	},
 	error: function (data) {
 		console.log('error')
@@ -52,33 +61,16 @@ $.ajax({
 
 
 <div class="container">
-{% if not request.GET.q %}
-<div class="row">
-	{% include 'tweets/form.html' with form=create_form action_url=create_url btn_title="Tweet"  %}
-</div>
-{% endif %}
-<hr>
-
-<div id="tweet-container">
-	
-</div>
-
-{% for obj in object_list %}
-	<div class="media">
-	{% if object.image %}
-	  <img class="mr-3" src="..." alt="Generic placeholder image">
-	{% endif %}  
-	  <div class="media-body">
-			{{ obj.content }}
-	  </div>
+	{% if not request.GET.q %}
+	<div class="row">
+		{% include 'tweets/form.html' with form=create_form action_url=create_url btn_title="Tweet"  %}
 	</div>
-	{{ obj.user }} | {{ obj.timestamp|timesince }} ago | <a href="{{ object.get_absolute_url }}">View</a></p>
-{% empty %}
-	{% if request.GET.q %}
-	<p>No tweets found.</p>
-	{% else %}
-	<p>No tweets yet.</p>
 	{% endif %}
-{% endfor %}
+	<hr>
+
+	<div id="tweet-container">
+		
+	</div>
+
 </div>
 {% endblock body %}
