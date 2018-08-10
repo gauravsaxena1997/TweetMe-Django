@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %} List {% endblock title %}
+
+{% block script  %}
+<script type="text/javascript">
+
+
+	$.ajax({
+		url: '/api/tweet',
+		method: 'GET',
+		success: function (data) {
+			// console.log(data)
+			$.each(data, function(key,value){
+				var tweetUser = key;
+				var tweetUser = value.user;
+				var tweetContent = value.content;
+				$('#tweet-container').append(
+					"<div class=\"media\"> <div class=\"media-body\">" +
+						tweetContent + "<br> via " +
+						tweetUser.username + " | " +
+						"<a href='#'>View</a>" +
+					"</div> </div> <hr>"
+					)
+
+			})
+		},
+		error: function (data) {
+			console.log('error')
+			console.log(data)
+		}	
+	})
+	
+</script>
+
+{% endblock script %}
+
+{% block body %}
+
+
+<div class="container">
+{% if not request.GET.q %}
+<div class="row">
+	{% include 'tweets/form.html' with form=create_form action_url=create_url btn_title="Tweet"  %}
+</div>
+{% endif %}
+<hr>
+
+<div id="tweet-container">
+	
+</div>
+<hr>
+{% for obj in object_list %}
+	<div class="media">
+	{% if object.image %}
+	  <img class="mr-3" src="..." alt="Generic placeholder image">
+	{% endif %}  
+	  <div class="media-body">
+			{{ obj.content }}
+	  </div>
+	</div>
+	{{ obj.user }} | {{ obj.timestamp|timesince }} ago | <a href="{{ object.get_absolute_url }}">View</a></p>
+{% empty %}
+	{% if request.GET.q %}
+	<p>No tweets found.</p>
+	{% else %}
+	<p>No tweets yet.</p>
+	{% endif %}
+{% endfor %}
+</div>
+{% endblock body %}
