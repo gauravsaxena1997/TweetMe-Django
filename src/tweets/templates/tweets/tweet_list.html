@@ -20,6 +20,22 @@ var query = getParameterByName('q')
 // console.log(query)
 var tweetList = []
 
+function attachTweets(tweetValue,prepend){
+	var tweetUser = tweetValue.user;
+	var dateDisplay = tweetValue.date_display;
+	var tweetContent = tweetValue.content;
+	var tweetFormattedHTML = 	"<div class=\"media\"> <div class=\"media-body\">" +
+								tweetContent + "<br> via " +
+								tweetUser.username + " | " +  dateDisplay + " | " +
+								"<a href='#'>View</a>" +
+								"</div> </div> <hr>"
+	if (prepend==true){
+	$('#tweet-container').prepend(tweetFormattedHTML)	
+	} else {	
+	$('#tweet-container').append(tweetFormattedHTML)	
+	}
+}
+
 function parseTweets(){
 	if (tweetList==0) {
 		$('#tweet-container').text('No tweets currently found.')
@@ -27,17 +43,8 @@ function parseTweets(){
 	else { // tweets exists parse and display them
 	$.each(tweetList, function(key,value){
 		var tweetUser = key;
-		var tweetUser = value.user;
-		var dateDisplay = value.date_display;
-		var tweetContent = value.content;
-		$('#tweet-container').append(
-			"<div class=\"media\"> <div class=\"media-body\">" +
-				tweetContent + "<br> via " +
-				tweetUser.username + " | " +  dateDisplay + " | " +
-				"<a href='#'>View</a>" +
-			"</div> </div> <hr>"
-			)	
-		})
+		attachTweets(value)
+	})
 	}
 }
 
@@ -63,17 +70,16 @@ fetchTweets()
 
 $('#tweet-form').submit(function(event){
 	event.preventDefault()
+	var this_ = $(this)
 	// console.log(event)
-	var formData =  $(this).serialize()
+	var formData =  this_.serialize()
 	$.ajax({
 		url: '/api/tweet/create/',
 		data: formData,
 		method: 'POST',
 		success: function (data) {
-				// tweetList = data
-				// parseTweets()
-				console.log(data)
-				fetchTweets()
+			this_.find("input[type=text], textarea").val('')
+			attachTweets(data,true)
 		},
 		error: function (data) {
 			console.log('error')
