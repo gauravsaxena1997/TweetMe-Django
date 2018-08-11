@@ -28,11 +28,12 @@ function parseTweets(){
 	$.each(tweetList, function(key,value){
 		var tweetUser = key;
 		var tweetUser = value.user;
+		var dateDisplay = value.date_display;
 		var tweetContent = value.content;
 		$('#tweet-container').append(
 			"<div class=\"media\"> <div class=\"media-body\">" +
 				tweetContent + "<br> via " +
-				tweetUser.username + " | " +
+				tweetUser.username + " | " +  dateDisplay + " | " +
 				"<a href='#'>View</a>" +
 			"</div> </div> <hr>"
 			)	
