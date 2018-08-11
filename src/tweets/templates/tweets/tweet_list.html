@@ -17,8 +17,8 @@ function getParameterByName(name, url) {
 $(document).ready(function(){
 	
 var query = getParameterByName('q')
-// console.log(query)
 var tweetList = []
+var nextTweetUrl;
 
 // ---------------------------- ---Show tweets from api to HTML page ------------------------------
 function attachTweets(tweetValue,prepend){
@@ -36,7 +36,6 @@ function attachTweets(tweetValue,prepend){
 	$('#tweet-container').append(tweetFormattedHTML)	
 	}
 }
-// -------------------------------------------------------------------------------------------
 
 function parseTweets(){
 	if (tweetList==0) {
@@ -50,16 +49,30 @@ function parseTweets(){
 	}
 }
 
-function fetchTweets() {
+// --------------------------------- Fetch tweet dictionay from api -------------------------------------
+function fetchTweets(url) {
 	console.log('fetching...')
+	var fetchUrl;
+	if (!url) {
+		fetchUrl = '/api/tweet/'
+	} else {
+		fetchUrl = url
+	}
 	$.ajax({
-		url: '/api/tweet/',
+		url: fetchUrl,
 		data: {
 			'q': query
 		},
 		method: 'GET',
 		success: function (data) {
-				tweetList = data
+				console.log(data)
+				tweetList = data.results
+				if (data.next) {
+					nextTweetUrl = data.next
+				} else {
+					$('#loadmore').css('display','none')
+					$('#nomoredata').text('No more tweets')
+				}
 				parseTweets()
 		},
 		error: function (data) {
@@ -70,10 +83,22 @@ function fetchTweets() {
 }
 fetchTweets()	
 
-var charsStart = 140
-var charsCurrent = 0
+// --------------------------------------- Load More -------------------------------------
+
+// $('#loadmore').bind('click',function(event)(){
+// 	event.preventDefault()	                                            ( alternate )
+// })
+
+$('#loadmore').click(function(event){
+	event.preventDefault()
+	if (nextTweetUrl) {
+		fetchTweets(nextTweetUrl)
+	}
+})
 
 // ---------------------------- Counting Tweet Length -------------------------------------
+var charsStart = 140
+var charsCurrent = 0
 $('#tweet-form').append('<span id="tweetCharsLeft"> '+ charsStart +' </span>')
 
 $('#tweet-form textarea').keyup(function(event){
@@ -144,6 +169,9 @@ $('#tweet-form').submit(function(event){
 	<div id="tweet-container">
 		
 	</div>
+
+	<a href="" id="loadmore"> Load More Tweets </a>
+	<p id='nomoredata'>  </p>
 
 </div>
 {% endblock body %}
