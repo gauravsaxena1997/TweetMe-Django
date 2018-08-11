@@ -20,6 +20,7 @@ var query = getParameterByName('q')
 // console.log(query)
 var tweetList = []
 
+// ---------------------------- ---Show tweets from api to HTML page ------------------------------
 function attachTweets(tweetValue,prepend){
 	var tweetUser = tweetValue.user;
 	var dateDisplay = tweetValue.date_display;
@@ -35,6 +36,7 @@ function attachTweets(tweetValue,prepend){
 	$('#tweet-container').append(tweetFormattedHTML)	
 	}
 }
+// -------------------------------------------------------------------------------------------
 
 function parseTweets(){
 	if (tweetList==0) {
@@ -68,25 +70,59 @@ function fetchTweets() {
 }
 fetchTweets()	
 
+var charsStart = 140
+var charsCurrent = 0
+
+// ---------------------------- Counting Tweet Length -------------------------------------
+$('#tweet-form').append('<span id="tweetCharsLeft"> '+ charsStart +' </span>')
+
+$('#tweet-form textarea').keyup(function(event){
+	// console.log(event.key, event.timeStamp)
+	// console.log(tweetValue)
+	// console.log(tweetValue.length)       (Check length of input tweet)
+	
+	var tweetValue = $(this).val()
+	charsCurrent = charsStart - tweetValue.length
+	var spanChars =  $('#tweetCharsLeft')
+	spanChars.text(charsCurrent)
+
+	if (charsCurrent>0){
+		spanChars.removeClass('grey-color')
+		spanChars.removeClass('red-color')
+
+	} else if (charsCurrent==0) {
+		spanChars.addClass('grey-color')
+		spanChars.removeClass('red-color')
+	} else if (charsCurrent<0) {
+		spanChars.addClass('red-color')
+		spanChars.removeClass('grey-color')
+	}
+})
+// -------------------------------------------------------------------------------------------
+
 $('#tweet-form').submit(function(event){
 	event.preventDefault()
 	var this_ = $(this)
 	// console.log(event)
 	var formData =  this_.serialize()
-	$.ajax({
-		url: '/api/tweet/create/',
-		data: formData,
-		method: 'POST',
-		success: function (data) {
-			this_.find("input[type=text], textarea").val('')
-			attachTweets(data,true)
-		},
-		error: function (data) {
-			console.log('error')
-			console.log(data.status)
-			console.log(data.statusText)
-		}	
-	})
+	if (charsCurrent>=0){
+		$.ajax({
+			url: '/api/tweet/create/',
+			data: formData,
+			method: 'POST',
+			success: function (data) {
+				this_.find("input[type=text], textarea").val('')
+				attachTweets(data,true)
+			},
+			error: function (data) {
+				console.log('error')
+				console.log(data.status)
+				console.log(data.statusText)
+			}	
+		})
+	} else {
+		console.log("Can't send, tweet too long. ")
+	}
 })
 })
 

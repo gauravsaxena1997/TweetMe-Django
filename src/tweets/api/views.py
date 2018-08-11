@@ -10,15 +10,14 @@ class TweetCreateAPIView(generics.CreateAPIView):
 	serializer_class = TweetModelSerializer
 	permission_classes = [permissions.IsAuthenticated]
 
-	def perform_create(self,serializer):
+	def perform_create(self,serializer):                                               #handle NULL string
 		serializer.save(user=self.request.user)
 
 class TweetListAPIView(generics.ListAPIView):
 	serializer_class = TweetModelSerializer
 	
 	def get_queryset(self, *args, **kwargs):
-		# qs = Tweet.objects.all().order_by('-pk') # sort by new to old
-		qs = Tweet.objects.all().order_by('-timestamp') #sort by new to old
+		qs = Tweet.objects.all().order_by('-timestamp')                                #sort by new to old
 		# print (self.request.GET)
 		query = self.request.GET.get('q',None)
 		if query is not None:

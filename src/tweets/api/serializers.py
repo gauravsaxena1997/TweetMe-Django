@@ -6,7 +6,7 @@ from accounts.api.serializers import UserDisplaySerializer
 
 class TweetModelSerializer(serializers.ModelSerializer):
 	# follower_count = serializers.SerializerMethodField()
-	user = UserDisplaySerializer(read_only=True) #write_only
+	user = UserDisplaySerializer(read_only=True)
 	date_display = serializers.SerializerMethodField()
 	timesince = serializers.SerializerMethodField()
 	class Meta:
