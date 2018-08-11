@@ -41,11 +41,39 @@
 
 
 
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 {% block script  %}
 {% endblock script %}
 
-<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script type="text/javascript">
+// ----------------------------------------Auto Search ------------------------------
+    $(document).ready(function(){
+      var typingTimer;
+      var doneInterval = 800; // in ms
+      var searchInput = $("#nav-search-form input[type=text]")
+      var searchQuery;
+      //keyup: execute  when a key is released
+      searchInput.keyup(function(event){
+          searchQuery =  $(this).val()
+          clearTimeout(typingTimer)
+          typingTimer = setTimeout(doneSearchTyping, doneInterval)
+      })
+      //keydown: execute  when a key is pressed
+       searchInput.keydown(function(event){
+          clearTimeout(typingTimer)  
+      })
+      // the function we want to execute after the timeout
+      function doneSearchTyping(){
+        if (searchQuery){
+          // do search
+          var url = '/tweet/search/?q=' + searchQuery
+          document.location.href = url;
+        }
+      }
+    })
+</script>
+
 
 </body>
 </html>
