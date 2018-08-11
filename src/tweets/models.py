@@ -19,7 +19,7 @@ class Tweet (models.Model):
 	def get_absolute_url(self):
 		return reverse('tweet:detail', kwargs={'pk':self.pk})
 
-	# Another way to sort by new tweets......
-	# class Meta:
-	# 	ordering = ['-timestamp', 'content']
+	#to sort by new tweets......
+	class Meta:
+		ordering = ['-timestamp']
 
