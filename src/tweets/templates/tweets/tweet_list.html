@@ -13,6 +13,9 @@ function getParameterByName(name, url) {
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+
+$(document).ready(function(){
+	
 var query = getParameterByName('q')
 // console.log(query)
 var tweetList = []
@@ -37,22 +40,49 @@ function parseTweets(){
 	}
 }
 
-$.ajax({
-	url: '/api/tweet/',
-	data: {
-		'q': query
-	},
-	method: 'GET',
-	success: function (data) {
-			tweetList = data
-			parseTweets()
-	},
-	error: function (data) {
-		console.log('error')
-		console.log(data)
-	}	
+function fetchTweets() {
+	console.log('fetching...')
+	$.ajax({
+		url: '/api/tweet/',
+		data: {
+			'q': query
+		},
+		method: 'GET',
+		success: function (data) {
+				tweetList = data
+				parseTweets()
+		},
+		error: function (data) {
+			console.log('error')
+			console.log(data)
+		}	
+	})
+}
+fetchTweets()	
+
+$('#tweet-form').submit(function(event){
+	event.preventDefault()
+	// console.log(event)
+	var formData =  $(this).serialize()
+	$.ajax({
+		url: '/api/tweet/create/',
+		data: formData,
+		method: 'POST',
+		success: function (data) {
+				// tweetList = data
+				// parseTweets()
+				console.log(data)
+				fetchTweets()
+		},
+		error: function (data) {
+			console.log('error')
+			console.log(data.status)
+			console.log(data.statusText)
+		}	
+	})
 })
-	
+})
+
 </script>
 
 {% endblock script %}
@@ -63,7 +93,7 @@ $.ajax({
 <div class="container">
 	{% if not request.GET.q %}
 	<div class="row">
-		{% include 'tweets/form.html' with form=create_form action_url=create_url btn_title="Tweet"  %}
+		{% include 'tweets/form.html' with form=create_form action_url=create_url btn_title="Tweet" form_id="tweet-form" %}
 	</div>
 	{% endif %}
 	<hr>
